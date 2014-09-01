@@ -17,9 +17,17 @@ import com.nineoldandroids.animation.AnimatorListenerAdapter;
 import com.nineoldandroids.view.ViewHelper;
 import com.nineoldandroids.view.ViewPropertyAnimator;
 
+/**
+ * @author chiemy
+ *
+ */
 public class CardView extends FrameLayout{
 	private static final int ITEM_SPACE = 40;
-	private int mMaxVisible = 5; // 最多可见的个数
+	private static final int DEF_MAX_VISIBLE = 5;
+	
+	private int mMaxVisible = DEF_MAX_VISIBLE;
+	private int itemSpace = ITEM_SPACE;
+	
 	private float mTouchSlop;
 	private ListAdapter mListAdapter;
 	private int mNextAdapterPosition;
@@ -64,6 +72,22 @@ public class CardView extends FrameLayout{
 		mTouchSlop = con.getScaledTouchSlop();
 	}
 	
+	public void setMaxVisibleCount(int count) {
+		mMaxVisible = count;
+	}
+	
+	public int getMaxVisibleCount() {
+		return mMaxVisible; 
+	}
+	
+	public void setItemSpace(int itemSpace) {
+		this.itemSpace = itemSpace;
+	}
+	
+	public int getItemSpace() {
+		return itemSpace;
+	}
+	
 	public ListAdapter getAdapter() {
 		return mListAdapter;
 	}
@@ -79,6 +103,7 @@ public class CardView extends FrameLayout{
 		ensureFull();
 	}
 	
+	
 	public void setOnCardClickListener(OnCardClickListener listener) {
 		mListener = listener;
 	}
@@ -92,17 +117,27 @@ public class CardView extends FrameLayout{
 			if(mNextAdapterPosition >= mMaxVisible){
 				index = mMaxVisible - 1;
 			}
-			View view = mListAdapter.getView(mNextAdapterPosition, null, this);
+			final View view = mListAdapter.getView(mNextAdapterPosition, null, this);
 			//viewHolder.put(index, view);
 			LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
 			int topMargin = (mMaxVisible - index - 1)*ITEM_SPACE + 20;
+			params.setMargins(0, topMargin, 0, 0);
 			view.setLayoutParams(params);
 			ViewHelper.setScaleX(view, ((mMaxVisible - index - 1)/(float)mMaxVisible)*0.2f + 0.8f);
-			ViewHelper.setTranslationY(view, topMargin);
+			//ViewHelper.setTranslationY(view, topMargin);
 			ViewHelper.setAlpha(view, mNextAdapterPosition == 0 ? 1 : 0.5f);
 			addViewInLayout(view,0, params);
 			requestLayout();
-			
+			if(mNextAdapterPosition == 0){
+				view.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						if(mListener != null){
+							mListener.onCardClick(view, 0);
+						}
+					}
+				});
+			}
 			mNextAdapterPosition += 1;
 		}
 	}
@@ -122,7 +157,6 @@ public class CardView extends FrameLayout{
 			float distance = currentY - downY;
 			if(distance > mTouchSlop && !remove){
 				if(goDown()){
-					downY = -1;
 					remove = true;
 				}
 			}
@@ -132,7 +166,7 @@ public class CardView extends FrameLayout{
 			
 			break;
 		}
-		return true;
+		return super.onTouchEvent(event);
 	}
 	
 	/**
@@ -144,13 +178,16 @@ public class CardView extends FrameLayout{
 			topRect = new Rect();
 			topView.getHitRect(topRect);
 		}
+		System.out.println(">>>" + topRect.left + "," + topRect.right + ","
+				+ topRect.top + "," + topRect.bottom);
+		System.out.println(">>>" + downX + "," + downY);
 		if(!topRect.contains((int)downX, (int)downY)){
 			return false;
 		}
 		ViewPropertyAnimator anim = ViewPropertyAnimator.animate(topView)
-				.translationY(topView.getTranslationY() + topView.getHeight()/2)
-				.setDuration(200)
-				.alpha(0.3f);
+				.translationY(topView.getTranslationY() + topView.getHeight())
+				.alpha(0.3f).scaleX(1)
+				.setDuration(200);
 		anim.setListener(new AnimatorListenerAdapter() {
 			@Override
 			public void onAnimationEnd(Animator animation) {
@@ -167,7 +204,7 @@ public class CardView extends FrameLayout{
 						if((count == mMaxVisible && i != 0) || count < mMaxVisible){
 							ViewPropertyAnimator.animate(view)
 							.translationY(tranlateY)
-							.scaleX(scaleX).setDuration(100);
+							.scaleX(scaleX).setDuration(200);
 						}
 					}
 				}
@@ -182,7 +219,7 @@ public class CardView extends FrameLayout{
 		ViewPropertyAnimator.animate(view)
 		.translationY(tranlateY)
 		.alpha(1).setInterpolator(new AccelerateInterpolator())
-		.scaleX(scaleX).setDuration(150)
+		.scaleX(scaleX).setDuration(200)
 		.setListener(new AnimatorListenerAdapter() {
 			public void onAnimationEnd(Animator animation) {
 				topPosition++;

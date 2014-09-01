@@ -9,10 +9,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.chiemy.cardview.view.CardStackAdapter;
+import com.chiemy.cardview.view.CardAdapter;
 import com.chiemy.cardview.view.CardView;
 import com.chiemy.cardview.view.CardView.OnCardClickListener;
 
@@ -46,22 +47,26 @@ public class MainActivity extends Activity {
 		return list;
 	}
 
-	public class MyCardAdapter extends CardStackAdapter<String>{
+	public class MyCardAdapter extends CardAdapter<String>{
 
 		public MyCardAdapter(Context context) {
 			super(context);
 		}
-
+		
+		@Override
+		public int getCount() {
+			return Integer.MAX_VALUE;
+		}
+		
 		@Override
 		protected View getCardView(int position,
 				View convertView, ViewGroup parent) {
-			TextView tv = null;
 			if(convertView == null) {
 				LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
 				convertView = inflater.inflate(R.layout.item_layout, parent, false);
 			}
-			tv = (TextView) convertView.findViewById(R.id.textView1);
-			tv.setText(getItem(position).toString());
+			TextView tv = (TextView) convertView.findViewById(R.id.textView1);
+			tv.setText(getItem(position%7).toString());
 			return convertView;
 		}
 	}
