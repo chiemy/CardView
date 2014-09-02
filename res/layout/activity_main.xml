@@ -2,14 +2,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.chiemy.cardview.MainActivity" >
+    tools:context="com.chiemy.cardview.MainActivity"
+    android:background="#00688B"
+     >
 
     <com.chiemy.cardview.view.CardView
         android:id="@+id/cardView1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="10dp"
         >
     </com.chiemy.cardview.view.CardView>
-
+	
+    <LinearLayout
+        android:id="@+id/contentView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+    </LinearLayout>
 </RelativeLayout>

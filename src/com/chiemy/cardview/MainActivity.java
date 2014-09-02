@@ -3,13 +3,13 @@ package com.chiemy.cardview;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,26 +17,44 @@ import com.chiemy.cardview.view.CardAdapter;
 import com.chiemy.cardview.view.CardView;
 import com.chiemy.cardview.view.CardView.OnCardClickListener;
 
-public class MainActivity extends Activity {
-	private List<String> list;
+public class MainActivity extends FragmentActivity implements OnCardClickListener{
+	List<String> list;
+	private TestFragment frag;
+	private View contentView;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		initUI();
+	}
+	
+	private void initUI() {
 		CardView cardView = (CardView) findViewById(R.id.cardView1);
-		cardView.setOnCardClickListener(new OnCardClickListener() {
-			@Override
-			public void onCardClick(View view, int position) {
-				Toast.makeText(MainActivity.this, position + "", Toast.LENGTH_SHORT).show();
-			}
-		});
+		cardView.setOnCardClickListener(this);
+		cardView.setItemSpace(Utils.convertDpToPixelInt(this, 20));
+		
 		MyCardAdapter adapter = new MyCardAdapter(this);
 		adapter.addAll(initData());
 		cardView.setAdapter(adapter);
+		
+		contentView = findViewById(R.id.contentView);
+		FragmentManager manager = getSupportFragmentManager();
+		frag = new TestFragment();
+		manager.beginTransaction().add(R.id.contentView, frag).commit();
 	}
 	
+	@Override
+	public void onCardClick(final View view, final int position) {
+		Toast.makeText(MainActivity.this, position + "", Toast.LENGTH_SHORT).show();
+		Bundle bundle = new Bundle();
+		bundle.putString("text", list.get(position%list.size()));
+		frag.show(view,bundle);
+	}
+	
+	
+	
 	private List<String> initData() {
-		List<String> list = new ArrayList<String>();
+		list = new ArrayList<String>();
 		list.add("a");
 		list.add("b");
 		list.add("c");
@@ -66,9 +84,9 @@ public class MainActivity extends Activity {
 				convertView = inflater.inflate(R.layout.item_layout, parent, false);
 			}
 			TextView tv = (TextView) convertView.findViewById(R.id.textView1);
-			tv.setText(getItem(position%7).toString());
+			tv.setText(getItem(position%list.size()).toString());
 			return convertView;
 		}
 	}
-	
+
 }
