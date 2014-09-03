@@ -102,13 +102,15 @@ public class CardView extends FrameLayout{
 		while (mNextAdapterPosition < mListAdapter.getCount()
 				&& getChildCount() < mMaxVisible) {
 			int index = mNextAdapterPosition % mMaxVisible;
-			//View convertView = viewHolder.get(index);
+			View convertView = viewHolder.get(index);
+			final View view = mListAdapter.getView(mNextAdapterPosition, convertView, this);
+			view.setOnClickListener(null);
+			viewHolder.put(index, view);
+			
 			//添加剩余的View时，始终处在最后
 			if(mNextAdapterPosition >= mMaxVisible){
 				index = mMaxVisible - 1;
 			}
-			final View view = mListAdapter.getView(mNextAdapterPosition, null, this);
-			//viewHolder.put(index, view);
 			LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
 			view.setLayoutParams(params);
 			ViewHelper.setScaleX(view, ((mMaxVisible - index - 1)/(float)mMaxVisible)*0.2f + 0.8f);
@@ -116,7 +118,9 @@ public class CardView extends FrameLayout{
 			int topMargin = (mMaxVisible - index - 1)*itemSpace + PADDING_TOP;
 			ViewHelper.setTranslationY(view, topMargin);
 			ViewHelper.setAlpha(view, mNextAdapterPosition == 0 ? 1 : 0.5f);
+			
 			addViewInLayout(view,0, params);
+			
 			mNextAdapterPosition += 1;
 		}
 		requestLayout();
@@ -126,8 +130,10 @@ public class CardView extends FrameLayout{
 	protected void onLayout(boolean changed, int left, int top, int right,
 			int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
-		final View topView = getChildAt(getChildCount()-1);
-		topView.setOnClickListener(listener);
+		View topView = getChildAt(getChildCount()-1);
+		if(topView != null){
+			topView.setOnClickListener(listener);
+		}
 	}
 	
 	float downX,downY;
@@ -160,8 +166,9 @@ public class CardView extends FrameLayout{
 			return false;
 		}
 		ViewPropertyAnimator anim = ViewPropertyAnimator.animate(topView)
-				.translationY(topView.getTranslationY() + topView.getHeight())
+				.translationY(ViewHelper.getTranslationY(topView) + topView.getHeight())
 				.alpha(0).scaleX(1)
+				.setListener(null)
 				.setDuration(200);
 		anim.setListener(new AnimatorListenerAdapter() {
 			@Override
@@ -172,7 +179,7 @@ public class CardView extends FrameLayout{
 				for(int i = 0 ; i < count ; i++){
 					final View view = getChildAt(i);
 					float scaleX = ViewHelper.getScaleX(view) + ((float)1/mMaxVisible)*0.2f;
-					float tranlateY = view.getTranslationY() + itemSpace;
+					float tranlateY = ViewHelper.getTranslationY(view) + itemSpace;
 					if(i == count - 1){
 						bringToTop(view);
 					}else{
@@ -180,6 +187,7 @@ public class CardView extends FrameLayout{
 							ViewPropertyAnimator.animate(view)
 							.translationY(tranlateY)
 							.setInterpolator(new AccelerateInterpolator())
+							.setListener(null)
 							.scaleX(scaleX).setDuration(200);
 						}
 					}
@@ -195,12 +203,13 @@ public class CardView extends FrameLayout{
 	 */
 	private void bringToTop(final View view) {
 		float scaleX = ViewHelper.getScaleX(view) + ((float)1/mMaxVisible)*0.2f;
-		float tranlateY = view.getTranslationY() + itemSpace;
+		float tranlateY = ViewHelper.getTranslationY(view) + itemSpace;
 		ViewPropertyAnimator.animate(view)
 		.translationY(tranlateY)
 		.scaleX(scaleX)
 		.setDuration(200)
 		.alpha(1).setInterpolator(new AccelerateInterpolator())
+		.setListener(null)
 		.setListener(new AnimatorListenerAdapter() {
 			public void onAnimationEnd(Animator animation) {
 				topPosition++;

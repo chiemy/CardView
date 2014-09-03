@@ -33,15 +33,16 @@ public abstract class CardAdapter<T> extends BaseCardAdapter {
 		View convertedCardView;
 		if (wrapper == null) {
 			wrapper = new FrameLayout(mContext);
-			wrapper.setBackgroundResource(R.drawable.card_bg);
+			wrapper.setBackgroundResource(R.drawable.card_background_shadow);
 			cardView = getCardView(position, null, wrapper);
 			wrapper.addView(cardView);
 		} else {
 			cardView = wrapper.getChildAt(0);
 			convertedCardView = getCardView(position, cardView, wrapper);
+			//要先删除，然后再添加，否则界面不更新
+			wrapper.removeView(cardView);
+			wrapper.addView(convertedCardView);
 			if (convertedCardView != cardView) {
-				wrapper.removeView(cardView);
-				wrapper.addView(convertedCardView);
 			}
 		}
 		return wrapper;

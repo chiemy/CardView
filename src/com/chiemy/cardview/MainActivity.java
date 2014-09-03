@@ -84,7 +84,9 @@ public class MainActivity extends FragmentActivity implements OnCardClickListene
 				convertView = inflater.inflate(R.layout.item_layout, parent, false);
 			}
 			TextView tv = (TextView) convertView.findViewById(R.id.textView1);
-			tv.setText(getItem(position%list.size()).toString());
+			String text = getItem(position%list.size());
+			System.out.println(">>>" + text);
+			tv.setText(text);
 			return convertView;
 		}
 	}
