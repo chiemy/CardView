@@ -13,6 +13,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ListAdapter;
 
+import com.chiemy.cardview.Utils;
 import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.AnimatorListenerAdapter;
 import com.nineoldandroids.view.ViewHelper;
@@ -25,7 +26,7 @@ import com.nineoldandroids.view.ViewPropertyAnimator;
 public class CardView extends FrameLayout{
 	private static final int ITEM_SPACE = 40;
 	private static final int DEF_MAX_VISIBLE = 4;
-	private static final int PADDING_TOP = 300;
+	private static final int PADDING_TOP = 20;
 	
 	private int mMaxVisible = DEF_MAX_VISIBLE;
 	private int itemSpace = ITEM_SPACE;
@@ -58,6 +59,7 @@ public class CardView extends FrameLayout{
 	}
 	
 	private void init() {
+		topRect = new Rect();
 		ViewConfiguration con = ViewConfiguration.get(getContext());
 		mTouchSlop = con.getScaledTouchSlop();
 	}
@@ -93,7 +95,6 @@ public class CardView extends FrameLayout{
 		ensureFull();
 	}
 	
-	
 	public void setOnCardClickListener(OnCardClickListener listener) {
 		mListener = listener;
 	}
@@ -108,18 +109,17 @@ public class CardView extends FrameLayout{
 			viewHolder.put(index, view);
 			
 			//添加剩余的View时，始终处在最后
-			if(mNextAdapterPosition >= mMaxVisible){
-				index = mMaxVisible - 1;
-			}
-			LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
-			view.setLayoutParams(params);
+			index = Math.min(mNextAdapterPosition, mMaxVisible - 1);
 			ViewHelper.setScaleX(view, ((mMaxVisible - index - 1)/(float)mMaxVisible)*0.2f + 0.8f);
-			
 			int topMargin = (mMaxVisible - index - 1)*itemSpace + PADDING_TOP;
 			ViewHelper.setTranslationY(view, topMargin);
 			ViewHelper.setAlpha(view, mNextAdapterPosition == 0 ? 1 : 0.5f);
 			
-			addViewInLayout(view,0, params);
+			LayoutParams params = (LayoutParams) view.getLayoutParams();
+			if(params == null){
+				params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			}
+			addViewInLayout(view,0, params, true);
 			
 			mNextAdapterPosition += 1;
 		}
@@ -144,6 +144,7 @@ public class CardView extends FrameLayout{
 		case MotionEvent.ACTION_MOVE:
 			if(!remove){
 				if(goDown()){
+					downY = -1;
 					remove = true;
 				}
 			}
@@ -157,10 +158,8 @@ public class CardView extends FrameLayout{
 	 */
 	private boolean goDown() {
 		final View topView = getChildAt(getChildCount() - 1);
-		if(topRect == null){
-			topRect = new Rect();
-			topView.getHitRect(topRect);
-		}
+		//topView.getHitRect(topRect); 在4.3以前有bug，用以下方法代替
+		topRect = getHitRect(topRect, topView);
 		//如果按下的位置不在顶部视图上，则不移动
 		if(!topRect.contains((int)downX, (int)downY)){
 			return false;
@@ -237,6 +236,14 @@ public class CardView extends FrameLayout{
 		return super.onInterceptTouchEvent(ev);
 	}
 	
+	public static Rect getHitRect(Rect rect,View child){
+		rect.left = child.getLeft();
+		rect.right = child.getRight();
+		rect.top = (int) (child.getTop() + ViewHelper.getTranslationY(child));
+		rect.bottom = (int) (child.getBottom() + ViewHelper.getTranslationY(child));
+		return rect;
+	}
+	
 	private final DataSetObserver mDataSetObserver = new DataSetObserver() {
 		@Override
 		public void onChanged() {
@@ -253,7 +260,6 @@ public class CardView extends FrameLayout{
 		@Override
 		public void onClick(View v) {
 			if(mListener != null){
-				System.out.println(">>cardClick:" + topPosition);
 				mListener.onCardClick(v, topPosition);
 			}
 		}

@@ -1,7 +1,9 @@
 package com.chiemy.cardview;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.util.DisplayMetrics;
+import android.view.View;
 
 public class Utils {
 	
@@ -36,5 +38,5 @@ public class Utils {
 		float px = (float) (dp * (metrics.densityDpi / 160f));
 		return px;
 	}
-
+	
 }

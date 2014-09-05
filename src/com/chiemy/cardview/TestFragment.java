@@ -18,6 +18,7 @@ import com.nineoldandroids.view.ViewPropertyAnimator;
 public class TestFragment extends Fragment{
 	private TextView tv;
 	private View root;
+	private View view;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater,
@@ -29,6 +30,7 @@ public class TestFragment extends Fragment{
 	
 	private void initUI(final View root) {
 		root.setClickable(true);
+		root.setOnClickListener(null);
 		tv = (TextView) root.findViewById(R.id.textView);
 		root.findViewById(R.id.button).setOnClickListener(new OnClickListener() {
 			@Override
@@ -41,6 +43,7 @@ public class TestFragment extends Fragment{
 					public void onAnimationEnd(Animator animation) {
 						root.clearAnimation();
 						root.setVisibility(View.INVISIBLE);
+						view.setClickable(true);
 					}
 				});
 			}
@@ -48,10 +51,11 @@ public class TestFragment extends Fragment{
 	}
 	
 	public void show(final View view,Bundle bundle){
+		this.view = view;
 		String text = bundle.getString("text");
 		tv.setText(text);
 		view.setClickable(false);
-		view.setRotationY(0);
+		ViewHelper.setRotationY(view, 0);
 		ViewHelper.setRotationY(root, -90);
 		root.setVisibility(View.VISIBLE);
 		
@@ -65,7 +69,6 @@ public class TestFragment extends Fragment{
 			@Override
 			public void onAnimationEnd(Animator animation) {
 				ViewHelper.setRotationY(view, 0);
-				view.setClickable(true);
 			}
 		});
 	}
