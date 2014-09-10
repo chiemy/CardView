@@ -6,6 +6,13 @@
 
 - 测试版本4.1.2，4.2.2，4.4.2可用
 
+##2014-9-11修改
+
+- 修复设置高度`wrap_content`时显示不全的bug
+- 修复点击后，翻转过程中向下滑动出现的bug
+
+>注意：如果设置高度为`wrap_content`，为了保证动画视觉上的完整性，需要设置自身及所有关联窗口的`android:clipChildren`属性为false(代码中setClipChildren(false))。
+
 ##使用
 
 
@@ -23,7 +30,5 @@
 
 ##问题
 
-- `CardView`高度设置为`wrap_content`卡片会显示不全。(已修复)
-- `CardView`设置`padding`和`margin`，旋转动画会有被截断的效果。最后一张卡片距离顶部的距离是在CardView内部指定的，为固定值。
 - 测试2.3.2有严重bug（估计4.0版本之前都有此bug），不可用。
 

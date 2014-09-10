@@ -4,13 +4,10 @@ import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.view.View.MeasureSpec;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ListAdapter;
@@ -107,7 +104,6 @@ public class CardView extends FrameLayout {
 			final View view = mListAdapter.getView(mNextAdapterPosition,
 					convertView, this);
 			view.setOnClickListener(null);
-			// view.setOnTouchListener(null);
 			viewHolder.put(index, view);
 
 			// 添加剩余的View时，始终处在最后
@@ -173,17 +169,13 @@ public class CardView extends FrameLayout {
 	}
 
 	float downX, downY;
-	boolean remove = false;
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_MOVE:
-			if (!remove) {
-				if (goDown()) {
-					downY = -1;
-					remove = true;
-				}
+			if (goDown()) {
+				downY = -1;
 			}
 			break;
 		}
@@ -195,12 +187,16 @@ public class CardView extends FrameLayout {
 	 */
 	private boolean goDown() {
 		final View topView = getChildAt(getChildCount() - 1);
+		if(!topView.isClickable()){
+			return false;
+		}
 		// topView.getHitRect(topRect); 在4.3以前有bug，用以下方法代替
 		topRect = getHitRect(topRect, topView);
 		// 如果按下的位置不在顶部视图上，则不移动
 		if (!topRect.contains((int) downX, (int) downY)) {
 			return false;
 		}
+		topView.setClickable(false);
 		ViewPropertyAnimator anim = ViewPropertyAnimator
 				.animate(topView)
 				.translationY(
@@ -210,6 +206,7 @@ public class CardView extends FrameLayout {
 		anim.setListener(new AnimatorListenerAdapter() {
 			@Override
 			public void onAnimationEnd(Animator animation) {
+				topView.setClickable(true);
 				removeView(topView);
 				ensureFull();
 				final int count = getChildCount();
@@ -245,6 +242,7 @@ public class CardView extends FrameLayout {
 	 * @param view
 	 */
 	private void bringToTop(final View view) {
+		topPosition++;
 		float scaleX = ViewHelper.getScaleX(view) + ((float) 1 / mMaxVisible)
 				* 0.2f;
 		float tranlateY = ViewHelper.getTranslationY(view) + itemSpace;
@@ -253,8 +251,7 @@ public class CardView extends FrameLayout {
 				.setInterpolator(new AccelerateInterpolator())
 				.setListener(null).setListener(new AnimatorListenerAdapter() {
 					public void onAnimationEnd(Animator animation) {
-						topPosition++;
-						remove = false;
+						
 					}
 				});
 	}
