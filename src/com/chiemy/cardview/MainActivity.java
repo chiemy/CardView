@@ -20,7 +20,6 @@ import com.chiemy.cardview.view.CardView.OnCardClickListener;
 public class MainActivity extends FragmentActivity implements OnCardClickListener{
 	List<String> list;
 	private TestFragment frag;
-	private View contentView;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -37,7 +36,6 @@ public class MainActivity extends FragmentActivity implements OnCardClickListene
 		adapter.addAll(initData());
 		cardView.setAdapter(adapter);
 		
-		contentView = findViewById(R.id.contentView);
 		FragmentManager manager = getSupportFragmentManager();
 		frag = new TestFragment();
 		manager.beginTransaction().add(R.id.contentView, frag).commit();
@@ -85,7 +83,6 @@ public class MainActivity extends FragmentActivity implements OnCardClickListene
 			}
 			TextView tv = (TextView) convertView.findViewById(R.id.textView1);
 			String text = getItem(position%list.size());
-			System.out.println(">>>" + text);
 			tv.setText(text);
 			return convertView;
 		}

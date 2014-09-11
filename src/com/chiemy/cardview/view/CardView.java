@@ -187,7 +187,7 @@ public class CardView extends FrameLayout {
 	 */
 	private boolean goDown() {
 		final View topView = getChildAt(getChildCount() - 1);
-		if(!topView.isClickable()){
+		if(!topView.isEnabled()){
 			return false;
 		}
 		// topView.getHitRect(topRect); 在4.3以前有bug，用以下方法代替
@@ -196,7 +196,7 @@ public class CardView extends FrameLayout {
 		if (!topRect.contains((int) downX, (int) downY)) {
 			return false;
 		}
-		topView.setClickable(false);
+		topView.setEnabled(false);
 		ViewPropertyAnimator anim = ViewPropertyAnimator
 				.animate(topView)
 				.translationY(
@@ -206,7 +206,7 @@ public class CardView extends FrameLayout {
 		anim.setListener(new AnimatorListenerAdapter() {
 			@Override
 			public void onAnimationEnd(Animator animation) {
-				topView.setClickable(true);
+				topView.setEnabled(true);
 				removeView(topView);
 				ensureFull();
 				final int count = getChildCount();
@@ -248,12 +248,7 @@ public class CardView extends FrameLayout {
 		float tranlateY = ViewHelper.getTranslationY(view) + itemSpace;
 		ViewPropertyAnimator.animate(view).translationY(tranlateY)
 				.scaleX(scaleX).setDuration(200).alpha(1)
-				.setInterpolator(new AccelerateInterpolator())
-				.setListener(null).setListener(new AnimatorListenerAdapter() {
-					public void onAnimationEnd(Animator animation) {
-						
-					}
-				});
+				.setInterpolator(new AccelerateInterpolator());
 	}
 
 	@Override

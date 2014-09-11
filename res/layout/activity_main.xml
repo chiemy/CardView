@@ -11,6 +11,7 @@
         android:id="@+id/cardView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clipChildren="false"
         >
     </com.chiemy.cardview.view.CardView>
 	

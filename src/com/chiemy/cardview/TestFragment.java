@@ -30,7 +30,10 @@ public class TestFragment extends Fragment{
 	
 	private void initUI(final View root) {
 		root.setClickable(true);
-		root.setOnClickListener(null);
+		root.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {}
+		});
 		tv = (TextView) root.findViewById(R.id.textView);
 		root.findViewById(R.id.button).setOnClickListener(new OnClickListener() {
 			@Override
@@ -43,7 +46,7 @@ public class TestFragment extends Fragment{
 					public void onAnimationEnd(Animator animation) {
 						root.clearAnimation();
 						root.setVisibility(View.INVISIBLE);
-						view.setClickable(true);
+						view.setEnabled(true);
 					}
 				});
 			}
@@ -51,10 +54,10 @@ public class TestFragment extends Fragment{
 	}
 	
 	public void show(final View view,Bundle bundle){
+		view.setEnabled(false);
 		this.view = view;
 		String text = bundle.getString("text");
 		tv.setText(text);
-		view.setClickable(false);
 		ViewHelper.setRotationY(view, 0);
 		ViewHelper.setRotationY(root, -90);
 		root.setVisibility(View.VISIBLE);
@@ -62,6 +65,7 @@ public class TestFragment extends Fragment{
 		ViewPropertyAnimator.animate(view).rotationY(90)
 		.setDuration(300).setListener(null)
 		.setInterpolator(new AccelerateInterpolator());
+		
 		
 		ViewPropertyAnimator.animate(root)
 		.rotationY(0).setDuration(200).setStartDelay(300)
